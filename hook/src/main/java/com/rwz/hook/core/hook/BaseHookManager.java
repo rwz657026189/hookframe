@@ -42,9 +42,13 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         this.mClassLoader = classLoader;
         LogUtil.d("BaseHookManager" + " init：" + "isHook = " + isHook);
         if (isHook) {
-            mAppConfig = getAppConfig();
             hookApp();
         }
+    }
+
+    @Override
+    public void setAppConfig(AppConfig appConfig) {
+        mAppConfig = appConfig;
     }
 
     protected void hookApp() {
@@ -85,6 +89,7 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         bundle.putString(Constance.KEY_TARGET_PACKAGE_NAME, mAppConfig.getPackageName());
         bundle.putBoolean(Constance.KEY_FROM_TARGET, true);
         message.setData(bundle);
+        LogUtil.d("BaseHookManager" + " sendMessage：" + message.getData());
         try {
             mMessenger.send(message);
         } catch (RemoteException e) {
@@ -120,17 +125,21 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         @Override
         public void run() {
             LogUtil.d("CommRunnable" + " run：" + "code = " + code, "bundle = " + bundle);
-            onReceivedEvent(code, bundle);
+            try {
+                onReceivedEvent(code, bundle);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
     }
 
     /**
      *  hook成功, 可以hook对应的类
      */
-    protected abstract void onHookSuccess();
+    protected abstract void onHookSuccess() throws Throwable;
 
     //消息：客户端 -> 目标app
-    protected abstract void onReceivedEvent(int code, Bundle bundle);
+    protected abstract void onReceivedEvent(int code, Bundle bundle) throws Throwable;
 
 
     public void destroy() {

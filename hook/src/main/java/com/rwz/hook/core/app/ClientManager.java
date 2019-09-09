@@ -58,7 +58,7 @@ public class ClientManager {
         message.replyTo = reply;
         if(bundle == null)
             bundle = new Bundle();
-        bundle.putString(Constance.KEY_TARGET_PACKAGE_NAME, "com.foundersc.app.xm");
+        bundle.putString(Constance.KEY_TARGET_PACKAGE_NAME, "com.foundersc.app.xf");
         bundle.putBoolean(Constance.KEY_FROM_TARGET, false);
         message.setData(bundle);
         try {
@@ -72,7 +72,6 @@ public class ClientManager {
         @Override
         public boolean handleMessage(Message msg) {
             Bundle bundle = msg.getData();
-            LogUtil.d(TAG, "handleMessage", "msg = " + msg);
             if (mReceivedListener != null) {
                 mReceivedListener.onReceivedEvent(msg.what, bundle.getString(Constance.KEY_TARGET_PACKAGE_NAME), bundle);
             }

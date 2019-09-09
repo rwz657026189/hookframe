@@ -1,8 +1,10 @@
 package com.rwz.app;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.rwz.app.hook.TestHookManager;
+import com.rwz.hook.core.AppConfig;
 import com.rwz.hook.core.HookHelp;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -18,14 +20,17 @@ public class MainHook implements IXposedHookLoadPackage {
     private static final String TAG = "MainHook";
 
     public MainHook() {
-        HookHelp.register("com.foundersc.app.xf", TestHookManager.class);
+        HookHelp.register(new AppConfig("xf", "com.foundersc.app.xf",
+                "com.secneo.apkwrapper.ApplicationWrapper"), TestHookManager.class);
     }
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        Log.d(TAG, "handleLoadPackage: packageName = " + lpparam.packageName + "processName = " + lpparam.processName);
-        if (HookHelp.isHook(lpparam.packageName, lpparam.processName)) {
-            HookHelp.handleLoadPackage(lpparam.packageName, lpparam);
+        Log.d(TAG, "handleLoadPackage: packageName = " + lpparam.packageName + ", processName = " + lpparam.processName);
+        if (TextUtils.equals(lpparam.packageName, lpparam.processName)) {
+            AppConfig appConfig = HookHelp.getAppConfig(lpparam.packageName);
+            if(appConfig != null)
+                HookHelp.handleLoadPackage(appConfig, lpparam);
         }
     }
 

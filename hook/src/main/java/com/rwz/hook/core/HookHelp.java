@@ -3,9 +3,11 @@ package com.rwz.hook.core;
 import android.text.TextUtils;
 
 import com.rwz.hook.core.hook.IHookManager;
+import com.rwz.hook.utils.LogUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
@@ -16,38 +18,48 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  **/
 public class HookHelp {
 
-    private static final Map<String, Class<? extends IHookManager>> mHookManagerClass = new HashMap<>();
+    private static final Map<AppConfig, Class<? extends IHookManager>> mHookManagerMap = new HashMap<>();
     private static boolean isInit;
 
     private HookHelp() {
     }
 
-    public static void register(String packageName, Class<? extends IHookManager> manager){
+    public static void register(AppConfig appConfig, Class<? extends IHookManager> manager){
         if(isInit)
             return;
-        if(TextUtils.isEmpty(packageName) || mHookManagerClass.containsKey(packageName))
+        if(appConfig == null || mHookManagerMap.containsKey(appConfig))
             return;
-        mHookManagerClass.put(packageName, manager);
+        mHookManagerMap.put(appConfig, manager);
     }
 
-    public static boolean isHook(String packageName, String processName) {
-        return TextUtils.equals(packageName, processName) && mHookManagerClass.containsKey(packageName);
-    }
-
-    public static void handleLoadPackage(String packageName, XC_LoadPackage.LoadPackageParam lpparam) {
+    public static void handleLoadPackage(AppConfig appConfig, XC_LoadPackage.LoadPackageParam lpparam) {
+        if(appConfig == null)
+            return;
         isInit = true;
-        Class<? extends IHookManager> cls = mHookManagerClass.get(packageName);
+        Class<? extends IHookManager> cls = mHookManagerMap.get(appConfig);
         if(cls == null)
             return;
         try {
             IHookManager hookManager = cls.newInstance();
-            AppConfig appConfig = hookManager.getAppConfig();
-            if(appConfig != null)
-                appConfig.setPackageName(packageName);
+            LogUtil.d("HookHelp" + " handleLoadPackage：" + appConfig, appConfig);
+            hookManager.setAppConfig(appConfig);
             hookManager.init(lpparam.classLoader);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static AppConfig getAppConfig(String packageName) {
+        if(packageName == null)
+            return null;
+        Set<AppConfig> keySet = mHookManagerMap.keySet();
+        if(keySet == null)
+            return null;
+        for (AppConfig config : keySet) {
+            if(TextUtils.equals(packageName, config.getPackageName()))
+                return config;
+        }
+        return null;
     }
 
 }

@@ -14,6 +14,12 @@ public class AppConfig {
     //application类名
     private String applicationClassName;
 
+    public AppConfig(String appName, String packageName, String applicationClassName) {
+        this.appName = appName;
+        this.packageName = packageName;
+        this.applicationClassName = applicationClassName;
+    }
+
     public AppConfig(String appName, String applicationClassName) {
         this.appName = appName;
         this.applicationClassName = applicationClassName;
@@ -33,5 +39,15 @@ public class AppConfig {
 
     public String getApplicationClassName() {
         return applicationClassName;
+    }
+
+
+    @Override
+    public String toString() {
+        return "AppConfig{" +
+                "appName='" + appName + '\'' +
+                ", packageName='" + packageName + '\'' +
+                ", applicationClassName='" + applicationClassName + '\'' +
+                '}';
     }
 }

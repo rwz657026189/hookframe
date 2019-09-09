@@ -9,7 +9,7 @@ import com.rwz.hook.core.AppConfig;
  **/
 public interface IHookManager {
 
-    AppConfig getAppConfig();
+    void setAppConfig(AppConfig appConfig);
 
     void init(ClassLoader loader);
 

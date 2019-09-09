@@ -42,6 +42,7 @@ public class BridgeService extends Service{
             if(msg == null)
                 return null;
             String packageName = msg.getData().getString(Constance.KEY_TARGET_PACKAGE_NAME);
+            LogUtil.d("MessengerHandler" + " getTargetMessenger：" + packageName, mTargetMes);
             return packageName == null ? null : mTargetMes.get(packageName);
         }
 
@@ -50,6 +51,7 @@ public class BridgeService extends Service{
                 return;
             String packageName = msg.getData().getString(Constance.KEY_TARGET_PACKAGE_NAME);
             if (!TextUtils.isEmpty(packageName)) {
+                LogUtil.d("MessengerHandler" + " putTargetMessenger：" + packageName);
                 mTargetMes.put(packageName, msg.replyTo);
             }
         }
@@ -57,7 +59,7 @@ public class BridgeService extends Service{
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            LogUtil.d(TAG, "handleMessage", "msg = " + msg, Thread.currentThread().getName());
+            LogUtil.d(TAG, "handleMessage", "msg: what = " + msg.what, "data = " +  msg.getData());
             try {
                 switch (msg.what) {
                     case Constance.CLIENT_JOIN: //客户端注册
@@ -83,6 +85,7 @@ public class BridgeService extends Service{
         private void outputLog(String msg) throws RemoteException{
             if(!Constance.showLog)
                 return;
+            LogUtil.d("MessengerHandler" + " outputLog：" + msg);
             logData.append(Utils.getTime()).append(msg).append("\n");
             if (logData.length() > MAX_LOG_TEMP) {
                 logData.delete(0, logData.length() - MAX_LOG_TEMP);
