@@ -27,11 +27,7 @@ public class MainHook implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         Log.d(TAG, "handleLoadPackage: packageName = " + lpparam.packageName + ", processName = " + lpparam.processName);
-        if (TextUtils.equals(lpparam.packageName, lpparam.processName)) {
-            AppConfig appConfig = HookHelp.getAppConfig(lpparam.packageName);
-            if(appConfig != null)
-                HookHelp.handleLoadPackage(appConfig, lpparam);
-        }
+        HookHelp.handleLoadPackage(lpparam);
     }
 
 }

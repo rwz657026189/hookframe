@@ -17,6 +17,7 @@ import com.rwz.hook.core.AppConfig;
 import com.rwz.hook.core.Constance;
 import com.rwz.hook.utils.LogUtil;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -30,7 +31,7 @@ import de.robv.android.xposed.XposedHelpers;
  **/
 public abstract class BaseHookManager implements IHookManager, ServiceConnection{
 
-    private final String SERVICE_CLASS_NAME = "com.rwz.hook.core.BridgeService";
+    private final static String SERVICE_CLASS_NAME = "com.rwz.hook.core.BridgeService";
     protected Context mContext;
     protected ClassLoader mClassLoader;
     protected AppConfig mAppConfig;
@@ -145,6 +146,17 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
     public void destroy() {
         if(mContext != null)
             mContext.unbindService(this);
+    }
+
+    public Object createObject(String className, Object... args) throws Exception{
+        return XposedHelpers.newInstance(mClassLoader.loadClass(className), args);
+    }
+
+    public void setFiled(Object obj, String filedName, Object value) throws Exception{
+        Class<?> cls = obj.getClass();
+        Field field = cls.getDeclaredField(filedName);
+        field.setAccessible(true);
+        field.set(obj, value);
     }
 
 }

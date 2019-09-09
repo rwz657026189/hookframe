@@ -32,7 +32,15 @@ public class HookHelp {
         mHookManagerMap.put(appConfig, manager);
     }
 
-    public static void handleLoadPackage(AppConfig appConfig, XC_LoadPackage.LoadPackageParam lpparam) {
+    public static void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
+        if (TextUtils.equals(lpparam.packageName, lpparam.processName)) {
+            AppConfig appConfig = HookHelp.getAppConfig(lpparam.packageName);
+            if(appConfig != null)
+                handleLoadPackage(appConfig, lpparam);
+        }
+    }
+
+    private static void handleLoadPackage(AppConfig appConfig, XC_LoadPackage.LoadPackageParam lpparam) {
         if(appConfig == null)
             return;
         isInit = true;

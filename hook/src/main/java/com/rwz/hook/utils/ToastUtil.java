@@ -5,7 +5,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.rwz.hook.core.app.BaseApplication;
+import com.rwz.hook.core.app.ContextHelp;
 
 
 /**
@@ -56,7 +56,7 @@ public class ToastUtil {
 
     private Toast getToast() {
         if (mToast == null) {
-            mToast = Toast.makeText(BaseApplication.getInstance(), "", Toast.LENGTH_SHORT);
+            mToast = Toast.makeText(ContextHelp.getInstance(), "", Toast.LENGTH_SHORT);
         }
         return mToast;
     }
@@ -98,9 +98,9 @@ public class ToastUtil {
 
     private static void showText(String text, boolean isLong) {
         if (isLong) {
-            Toast.makeText(BaseApplication.getInstance(), text, Toast.LENGTH_LONG).show();
+            Toast.makeText(ContextHelp.getInstance(), text, Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(BaseApplication.getInstance(), text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ContextHelp.getInstance(), text, Toast.LENGTH_SHORT).show();
         }
     }
 }

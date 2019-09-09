@@ -11,6 +11,7 @@ import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.rwz.hook.core.app.ContextHelp;
 import com.rwz.hook.utils.LogUtil;
 import com.rwz.hook.utils.Utils;
 
@@ -32,6 +33,12 @@ public class BridgeService extends Service{
         return mMsg.getBinder();
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ContextHelp.setContext(this);
+    }
+
     private static class MessengerHandler extends Handler{
 
         private Messenger mClientMes;
@@ -42,7 +49,6 @@ public class BridgeService extends Service{
             if(msg == null)
                 return null;
             String packageName = msg.getData().getString(Constance.KEY_TARGET_PACKAGE_NAME);
-            LogUtil.d("MessengerHandler" + " getTargetMessenger：" + packageName, mTargetMes);
             return packageName == null ? null : mTargetMes.get(packageName);
         }
 
@@ -51,7 +57,6 @@ public class BridgeService extends Service{
                 return;
             String packageName = msg.getData().getString(Constance.KEY_TARGET_PACKAGE_NAME);
             if (!TextUtils.isEmpty(packageName)) {
-                LogUtil.d("MessengerHandler" + " putTargetMessenger：" + packageName);
                 mTargetMes.put(packageName, msg.replyTo);
             }
         }
