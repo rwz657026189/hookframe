@@ -20,11 +20,6 @@ public class AppConfig {
         this.applicationClassName = applicationClassName;
     }
 
-    public AppConfig(String appName, String applicationClassName) {
-        this.appName = appName;
-        this.applicationClassName = applicationClassName;
-    }
-
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }

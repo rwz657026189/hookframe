@@ -35,11 +35,11 @@ public class ClientManager {
 
     public void connService(Context context) {
         Intent service = new Intent();
-        service.setClassName("com.rwz.app", BridgeService.class.getName());
+        service.setClassName(context.getPackageName(), BridgeService.class.getName());
         context.bindService(service, conn, Service.BIND_AUTO_CREATE);
     }
 
-    ServiceConnection conn = new ServiceConnection() {
+    private ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             LogUtil.d(TAG, "onServiceConnected");
