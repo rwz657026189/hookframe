@@ -58,6 +58,9 @@ public class BridgeService extends Service{
             if(msg == null)
                 return null;
             String packageName = msg.getData().getString(Constance.KEY_TARGET_PACKAGE_NAME);
+            LogUtil.d("MessengerHandler" + " getTargetMessenger：" + packageName + "," + mTargetMes);
+            if (TextUtils.isEmpty(packageName) && mTargetMes.size() == 1)
+                return mTargetMes.values().iterator().next();
             return packageName == null ? null : mTargetMes.get(packageName);
         }
 
@@ -84,7 +87,7 @@ public class BridgeService extends Service{
                         break;
                     case Constance.TARGET_JOIN: //目标注册
                         putTargetMessenger(msg);
-                        outputLog("目标hook成功");
+                        outputLog("目标注册成功");
                         break;
                     case Constance.LOG: //输出日志
                         outputLog(msg.getData().getString(Constance.KEY_MSG));

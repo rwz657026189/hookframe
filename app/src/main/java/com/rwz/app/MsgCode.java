@@ -7,9 +7,13 @@ package com.rwz.app;
  **/
 public interface MsgCode {
 
-    int REQUEST = 1001;
+    //获取参数、成员变量
+    int GET_ACTIVITY_INFO = 1001;
+    //返回参数、成员变量
+    int RETURN_ACTIVITY_INFO = 1002;
     String KEY_CODE = "KEY_CODE";
     String KEY_CODE_TYPE = "KEY_CODE_TYPE";
+    String KEY_ACTIVITY_INFO = "KEY_ACTIVITY_INFO";
 
 
 }

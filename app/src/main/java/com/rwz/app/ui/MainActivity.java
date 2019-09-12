@@ -2,15 +2,18 @@ package com.rwz.app.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatTextView;
 
 import com.rwz.app.MsgCode;
 import com.rwz.app.R;
 import com.rwz.hook.core.app.ClientManager;
 import com.rwz.hook.core.app.ReceivedListener;
+import com.rwz.hook.utils.LogUtil;
 
 public class MainActivity extends AppCompatActivity implements ReceivedListener {
 
     private ClientManager mManager;
+    private AppCompatTextView mMContextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,11 +22,9 @@ public class MainActivity extends AppCompatActivity implements ReceivedListener 
         mManager = new ClientManager(this);
         mManager.connService(this);
         findViewById(R.id.text).setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putString(MsgCode.KEY_CODE, "000001");
-            bundle.putInt(MsgCode.KEY_CODE_TYPE, 4609);
-            mManager.sendMessage(MsgCode.REQUEST, bundle);
+            mManager.sendMessage(MsgCode.GET_ACTIVITY_INFO, null);
         });
+        mMContextView = findViewById(R.id.content);
     }
 
     @Override
@@ -34,7 +35,11 @@ public class MainActivity extends AppCompatActivity implements ReceivedListener 
 
     @Override
     public void onReceivedEvent(int code, String packageName, Bundle data) {
-
+        if (code == MsgCode.RETURN_ACTIVITY_INFO) {
+            String text = data.getString(MsgCode.KEY_ACTIVITY_INFO);
+            LogUtil.d("MainActivity" + " onReceivedEvent：" + text);
+            mMContextView.setText(text);
+        }
     }
 
     public static void main(String[] args) {

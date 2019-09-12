@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.rwz.hook.core.BridgeService;
@@ -53,12 +54,12 @@ public class ClientManager {
     };
 
     //消息：目标app -> 客户端
+    //注意：若只需hook一个app，可省bundle，否则必须包含包名参数Constance.KEY_TARGET_PACKAGE_NAME
     public void sendMessage(int code, @Nullable Bundle bundle) {
         Message message = Message.obtain(null, code);
         message.replyTo = reply;
         if(bundle == null)
             bundle = new Bundle();
-        bundle.putString(Constance.KEY_TARGET_PACKAGE_NAME, "com.foundersc.app.xf");
         bundle.putBoolean(Constance.KEY_FROM_TARGET, false);
         message.setData(bundle);
         try {

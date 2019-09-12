@@ -62,16 +62,18 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
                         super.afterHookedMethod(param);
                         mContext = (Context) param.args[0];
                         LogUtil.d("BaseHookManager" + " afterHookedMethod：success mContext = " + mContext);
-                        connService();
+                        connService(mContext);
                         onHookSuccess();
                     }
                 });
     }
 
-    private void connService() {
+    protected void connService(Context context) {
+        if(context == null)
+            return;
         Intent intent = new Intent();
         intent.setClassName(Constance.packageName, SERVICE_CLASS_NAME);
-        mContext.bindService(intent, this, Service.BIND_AUTO_CREATE);
+        context.bindService(intent, this, Service.BIND_AUTO_CREATE);
     }
 
     @Override
