@@ -26,6 +26,8 @@ public class BridgeService extends Service{
     private static final int MAX_LOG_TEMP = 10000;
     private static MessengerHandler mHandle = new MessengerHandler();
     private Messenger mMsg = new Messenger(mHandle);
+    //消息拦截器，只允许设置一个
+    private static MsgInterceptor sMsgInterceptor;
 
     @Nullable
     @Override
@@ -37,6 +39,13 @@ public class BridgeService extends Service{
     public void onCreate() {
         super.onCreate();
         ContextHelp.setContext(this);
+    }
+
+    /**
+     * 设置消息拦截器
+     */
+    public static void setMsgInterceptor(MsgInterceptor sMsgInterceptor) {
+        BridgeService.sMsgInterceptor = sMsgInterceptor;
     }
 
     private static class MessengerHandler extends Handler{
@@ -64,6 +73,8 @@ public class BridgeService extends Service{
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            if (sMsgInterceptor != null && sMsgInterceptor.onReceivedMessage(msg))
+                return;
             LogUtil.d(TAG, "handleMessage", "msg: what = " + msg.what, "data = " +  msg.getData());
             try {
                 switch (msg.what) {
