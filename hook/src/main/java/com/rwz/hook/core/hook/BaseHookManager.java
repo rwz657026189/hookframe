@@ -42,30 +42,31 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
     private Messenger mMessenger;
 
     @Override
-    public void init(ClassLoader classLoader) {
-        boolean isHook = this.mClassLoader == null && classLoader != null;
-        this.mClassLoader = classLoader;
-        LogUtil.d("BaseHookManager" + " init：" + "isHook = " + isHook);
-        if (isHook) {
-            hookApp();
-        }
-    }
-
-    @Override
     public void setAppConfig(AppConfig appConfig) {
         mAppConfig = appConfig;
     }
 
-    protected void hookApp() {
+    @Override
+    public void init(ClassLoader classLoader) {
+        boolean isHook = this.mClassLoader == null && classLoader != null;
+        this.mClassLoader = classLoader;
+        LogUtil.d("BaseHookManager" + " init：" + "isHook = " + isHook + ", classLoader = " + classLoader);
         String appContext = mAppConfig.getApplicationClassName();
         if (TextUtils.isEmpty(appContext)) {
             try {
+                LogUtil.d("BaseHookManager" + " init：appContext is null");
                 onHookSuccess();
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }
             return;
+        } else if (isHook) {
+            hookApp();
         }
+    }
+
+    protected void hookApp() {
+        String appContext = mAppConfig.getApplicationClassName();
         LogUtil.d("BaseHookManager" + " hookApp：" + appContext);
         XposedHelpers.findAndHookMethod(appContext, mClassLoader, "attachBaseContext", Context.class,
                 new XC_MethodHook() {
@@ -86,7 +87,7 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         if(context == null)
             return;
         Intent intent = new Intent();
-        intent.setClassName(Constance.packageName, SERVICE_CLASS_NAME);
+        intent.setClassName(Constance.PACKAGE_NAME, SERVICE_CLASS_NAME);
         context.bindService(intent, this, Service.BIND_AUTO_CREATE);
     }
 
@@ -94,7 +95,7 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
     public void onServiceConnected(ComponentName name, IBinder service) {
         LogUtil.d("BaseHookManager" + " onServiceConnected：");
         mMessenger = new Messenger(service);
-        sendMessage(Constance.TARGET_JOIN, null);
+        sendMessage(Constance.CODE_TARGET_JOIN, null);
     }
 
     //消息：目标app -> 客户端

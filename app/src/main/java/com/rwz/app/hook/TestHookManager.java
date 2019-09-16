@@ -8,11 +8,8 @@ import com.rwz.hook.core.hook.BaseHookManager;
 import com.rwz.hook.utils.LogUtil;
 import com.rwz.hook.utils.ReflectUtil;
 
-import org.apache.httpcore.HttpClientConnection;
-
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
-import okhttp3.OkHttpClient;
 
 /**
  * date： 2019/9/5 10:07
@@ -52,7 +49,7 @@ public class TestHookManager extends BaseHookManager {
                 String activityName = thisObject + "";
                 LogUtil.d("TestHookManager" + " onResume：--------------------------------------------------------------------");
                 LogUtil.d("TestHookManager" + " onResume：application = " + app);
-                LogUtil.d("TestHookManager" + " onResume：packageName = " + packageName);
+                LogUtil.d("TestHookManager" + " onResume：PACKAGE_NAME = " + packageName);
                 LogUtil.d("TestHookManager" + " onResume：activity = " + activityName);
                 LogUtil.d("TestHookManager" + " onResume：turnArgs = " + turnArgs);
                 LogUtil.d("TestHookManager" + " onResume：vars = " + vars);

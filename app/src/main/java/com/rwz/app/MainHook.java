@@ -21,13 +21,12 @@ public class MainHook implements IXposedHookLoadPackage {
 
     public MainHook() {
         //测试，不区分应用
-        HookHelp.register(new AppConfig("", Constance.ALL_PACKAGE_NAME,
-                ""), TestHookManager.class);
+        HookHelp.register(new AppConfig(), TestHookManager.class);
     }
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        Log.d(TAG, "handleLoadPackage: packageName = " + lpparam.packageName + ", processName = " + lpparam.processName);
+        Log.d(TAG, "handleLoadPackage: PACKAGE_NAME = " + lpparam.packageName + ", processName = " + lpparam.processName);
         HookHelp.handleLoadPackage(lpparam);
     }
 

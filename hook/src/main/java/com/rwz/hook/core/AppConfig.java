@@ -16,6 +16,10 @@ public class AppConfig {
     //application类名, 若未null，则不能进行应用间通信
     private String applicationClassName;
 
+    public AppConfig() {
+        this.packageName = Constance.ALL_PACKAGE_NAME;
+    }
+
     public AppConfig(@Nullable String appName, String packageName, @Nullable String applicationClassName) {
         this.appName = appName;
         this.packageName = packageName;
@@ -43,7 +47,7 @@ public class AppConfig {
     public String toString() {
         return "AppConfig{" +
                 "appName='" + appName + '\'' +
-                ", packageName='" + packageName + '\'' +
+                ", PACKAGE_NAME='" + packageName + '\'' +
                 ", applicationClassName='" + applicationClassName + '\'' +
                 '}';
     }

@@ -11,11 +11,12 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.rwz.hook.core.BridgeService;
 import com.rwz.hook.core.Constance;
+import com.rwz.hook.core.MsgInterceptor;
+import com.rwz.hook.inf.OnResponseListener;
 import com.rwz.hook.utils.LogUtil;
 
 /**
@@ -34,10 +35,13 @@ public class ClientManager {
         mReceivedListener = listener;
     }
 
-    public void connService(Context context) {
+
+    public ClientManager connService(Context context, boolean isConnServer) {
         Intent service = new Intent();
         service.setClassName(context.getPackageName(), BridgeService.class.getName());
+        service.putExtra(Constance.KEY_CONN_SERVER, isConnServer);
         context.bindService(service, conn, Service.BIND_AUTO_CREATE);
+        return this;
     }
 
     private ServiceConnection conn = new ServiceConnection() {
@@ -45,7 +49,7 @@ public class ClientManager {
         public void onServiceConnected(ComponentName name, IBinder service) {
             LogUtil.d(TAG, "onServiceConnected");
             mMessenger = new Messenger(service);
-            sendMessage(Constance.CLIENT_JOIN, null);
+            sendMessage(Constance.CODE_CLIENT_JOIN, null);
         }
 
         @Override
@@ -83,6 +87,24 @@ public class ClientManager {
     public void destroy(Context context) {
         mReceivedListener = null;
         context.unbindService(conn);
+        setMsgInterceptor(null);
+        setResponseListener(null);
+    }
+
+    /**
+     * 设置消息拦截器, 页面关闭后默认会释放，若要保持后台开启，请在application中调用BridgeService.setMsgInterceptor()
+     */
+    public ClientManager setMsgInterceptor(MsgInterceptor sMsgInterceptor) {
+        BridgeService.setMsgInterceptor(sMsgInterceptor);
+        return this;
+    }
+
+    /**
+     * 监听服务器消息，页面关闭后默认会释放，若要保持后台开启，请在application中调用BridgeService.setResponseListener()
+     */
+    public ClientManager setResponseListener(OnResponseListener responseListener){
+        BridgeService.setResponseListener(responseListener);
+        return this;
     }
 
 }

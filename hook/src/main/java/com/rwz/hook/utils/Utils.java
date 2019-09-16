@@ -137,7 +137,7 @@ public class Utils {
     public static void checkVersionCode(Context context) {
         int currVersionCode = Utils.getVersionCode(context);
         int saveVersionCode = Utils.getInt(context, "VERSION_CODE", 1);
-        LogUtil.d("MainActivity" + " checkVersionCode：" + currVersionCode, saveVersionCode);
+        LogUtil.d("Utils" + " checkVersionCode：currVersionCode = " + currVersionCode, "saveVersionCode = " + saveVersionCode);
         if (currVersionCode > saveVersionCode) {
             Utils.putInt(context, "VERSION_CODE", currVersionCode);
             reboot();

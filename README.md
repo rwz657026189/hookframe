@@ -7,7 +7,7 @@
 3. 在入口类MainHook#handleLoadPackage()中，调用HookHelp.handleLoadPackage(lpparam);
 4. 在Activity通过ClientManager启动服务， 发送消息也通过ClientManager
 5. 实现自定义的HookManager(对应每个目标应用)继承BaseHookManager
-6. 需要配置当前应用的包名：Constance.packageName，以在目标应用启动服务
+6. 需要配置当前应用的包名：Constance.PACKAGE_NAME，以在目标应用启动服务
 
 ### 脱壳：
 + 参考：[https://juejin.im/post/5c3fe899f265da6144204be4]

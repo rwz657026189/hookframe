@@ -12,6 +12,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.rwz.hook.core.app.ContextHelp;
+import com.rwz.hook.core.websocket.WebSocketManager;
+import com.rwz.hook.inf.OnResponseListener;
 import com.rwz.hook.utils.LogUtil;
 import com.rwz.hook.utils.Utils;
 
@@ -32,6 +34,9 @@ public class BridgeService extends Service{
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        boolean connServer = intent.getBooleanExtra(Constance.KEY_CONN_SERVER, false);
+        if(connServer)
+            WebSocketManager.getInstance().startConn();
         return mMsg.getBinder();
     }
 
@@ -46,6 +51,13 @@ public class BridgeService extends Service{
      */
     public static void setMsgInterceptor(MsgInterceptor sMsgInterceptor) {
         BridgeService.sMsgInterceptor = sMsgInterceptor;
+    }
+
+    /**
+     * 监听服务器消息
+     */
+    public static void setResponseListener(OnResponseListener responseListener){
+        WebSocketManager.getInstance().setResponseListener(responseListener);
     }
 
     private static class MessengerHandler extends Handler{
@@ -81,15 +93,18 @@ public class BridgeService extends Service{
             LogUtil.d(TAG, "handleMessage", "msg: what = " + msg.what, "data = " +  msg.getData());
             try {
                 switch (msg.what) {
-                    case Constance.CLIENT_JOIN: //客户端注册
+                    case Constance.CODE_CLIENT_JOIN: //客户端注册
                         mClientMes = msg.replyTo;
                         outputLog("客户端注册成功");
                         break;
-                    case Constance.TARGET_JOIN: //目标注册
+                    case Constance.CODE_TARGET_JOIN: //目标注册
                         putTargetMessenger(msg);
                         outputLog("目标注册成功");
                         break;
-                    case Constance.LOG: //输出日志
+                    case Constance.CODE_CONN_SERVER://连接到服务器
+                        WebSocketManager.getInstance().startConn();
+                        break;
+                    case Constance.CODE_LOG: //输出日志
                         outputLog(msg.getData().getString(Constance.KEY_MSG));
                         break;
                     default:
@@ -110,7 +125,7 @@ public class BridgeService extends Service{
                 logData.delete(0, logData.length() - MAX_LOG_TEMP);
             }
             if (mClientMes != null) {
-                Message obtain = Message.obtain(null, Constance.LOG);
+                Message obtain = Message.obtain(null, Constance.CODE_LOG);
                 Bundle bundle = new Bundle();
                 bundle.putString(Constance.KEY_MSG, logData.toString());
                 obtain.setData(bundle);
@@ -120,7 +135,7 @@ public class BridgeService extends Service{
             }
         }
 
-        public void sendMsg(Message msg) throws RemoteException {
+        private void sendMsg(Message msg) throws RemoteException {
             boolean isFromTarget = msg.getData().getBoolean(Constance.KEY_FROM_TARGET);
             Message obtain = Message.obtain(null, msg.what);
             obtain.copyFrom(msg);
