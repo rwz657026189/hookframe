@@ -1,55 +1,107 @@
 package com.rwz.hook.utils;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
+/**
+ * 反射工具类
+ */
 public class ReflectUtil {
 
+    /**
+     * 获取对象的属性值
+     */
     public static Object getDeclaredField(Object obj, String fieldName) {
         return obj == null ? null : getDeclaredField(obj.getClass(), obj, fieldName);
     }
 
-    public static Object getDeclaredField(Class cl, Object obj, String fieldName) {
-        if (cl == null || obj == null || TextUtils.isEmpty(fieldName)) {
+    /**
+     * 获取父类对象的属性值
+     * @param obj null表示静态变量
+     */
+    public static Object getDeclaredField(Class cl, @Nullable Object obj, String fieldName) {
+        if (cl == null || TextUtils.isEmpty(fieldName)) {
             return null;
         }
         try {
             Field field = cl.getDeclaredField(fieldName);
             field.setAccessible(true);
             return field.get(obj);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
     /**
-     * 打印所有属性
-     * @param obj
-     * @param TAG
+     * 调用某个方法
+     */
+    public static void invoke(Object target, String methodName, Object... args) {
+        if(target == null)
+            return;
+        invoke(target.getClass(), target, methodName, args);
+    }
+
+    /**
+     * 调用父类某个方法
+     * @param obj : null表示静态方法
+     */
+    public static void invoke(Class cls, @Nullable Object obj, String methodName, Object... args) {
+        try {
+            Method method = cls.getDeclaredMethod(methodName, object2Class(args));
+            method.setAccessible(true);
+            method.invoke(obj, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Class[] object2Class(Object... args) {
+        if(args == null || args.length == 0)
+            return null;
+        Class[] result = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            result[i] = args[i].getClass();
+        }
+        return result;
+    }
+
+    /**
+     * 打印所有属性(不包含父类的属性)
      */
     public static void printAllFiled(Object obj, String TAG) {
-        if(obj != null)
-            printAllFiled(obj.getClass().getDeclaredFields(), obj, TAG);
+        if (obj != null) {
+            String text = getAllFiled(obj.getClass().getDeclaredFields(), obj, TAG);
+            LogUtil.d(TAG, text);
+        }
     }
+
+    /**
+     * 打印父类cl的属性
+     * @param cl 父类
+     * @param obj 对象
+     */
     public static void printAllFiled(Class cl, Object obj, String TAG) {
-        if(cl != null)
-            printAllFiled(cl.getDeclaredFields(), obj, TAG);
+        if (cl != null) {
+            String text = getAllFiled(cl.getDeclaredFields(), obj, TAG);
+            LogUtil.d(TAG, text);
+        }
     }
-    public static void printAllFiled(Field[] fields, Object obj, String TAG) {
+
+    /**
+     *  将对象属性转化为字符串
+     */
+    public static String getAllFiled(Object obj, String TAG) {
+        return obj == null ? "" : getAllFiled(obj.getClass().getDeclaredFields(), obj, TAG);
+    }
+
+    private static String getAllFiled(Field[] fields, Object obj, String TAG) {
         if (fields == null || fields.length == 0 || obj == null) {
-            LogUtil.d(TAG + " = " + obj);
-            return;
+            return obj + "";
         }
         StringBuilder sb = new StringBuilder();
         for (Field f : fields) {
@@ -60,101 +112,39 @@ public class ReflectUtil {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
-            sb.append(TAG).append(",").append(f.getName()).append(" = ").append(parse(object)).append("\n");
-        }
-        LogUtil.d(TAG, "length = " + fields.length + "\n" + sb.toString());
-    }
-
-    private static void read(String filePath) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            return;
-        }
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(filePath);
-            StringBuilder sb = new StringBuilder();
-            byte[] buff = new byte[1024 * 8];
-            int len;
-            while ((len = fis.read(buff)) >= 0) {
-                sb.append(new String(buff, 0, len, "utf-8"));
+            if (!TextUtils.isEmpty(TAG)) {
+                sb.append(TAG).append(",");
             }
-            System.out.println("content = " + sb.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            sb.append(f.getName()).append(" = ").append(parse(object)).append("\n");
         }
-
+        return "length = " + fields.length + "\n" + sb.toString();
     }
 
     private static String parse(Object obj) {
         if (obj == null)
             return "null";
-        if(obj instanceof byte[]){
-            StringBuilder sb = new StringBuilder();
-            sb.append("[");
-            byte[] buff = (byte[]) obj;
-            for (byte b : buff) {
-                sb.append(b).append(",");
-            }
-            if(buff.length > 0)
-                sb.deleteCharAt(sb.length() - 1);
-            sb.append("]");
-            String s = sb.toString();
-            return s;
-        }
+        if(obj instanceof Object[])
+            return Arrays.toString((Object[]) obj);
+        if(obj instanceof int[])
+            return Arrays.toString((int[]) obj);
+        if(obj instanceof boolean[])
+            return Arrays.toString((boolean[]) obj);
+        if(obj instanceof byte[])
+            return Arrays.toString((byte[]) obj);
         if(obj instanceof char[])
             return new String((char[]) obj);
         return obj.toString();
     }
 
     public static void printArgs(String TAG, Object params) {
-        if(params == null)
+        if (params == null) {
+            LogUtil.d(TAG, "params = null");
             return;
-        if (!(params instanceof Object[])) {
+        } else if (!(params instanceof Object[])) {
             LogUtil.d(TAG, "params = " + params);
         } else {
-            Object[] obj = (Object[]) params;
-            StringBuilder sb = new StringBuilder();
-            sb.append("[");
-            for (Object o : obj) {
-                sb.append(o).append(",");
-            }
-            if(obj.length > 0)
-                sb.deleteCharAt(sb.length() - 1);
-            sb.append("]");
-            LogUtil.d(TAG, "params = " + sb.toString());
+            LogUtil.d(TAG, "params = " + Arrays.toString((Object[]) params));
         }
-    }
-
-
-    public interface IAPI {
-        @Deprecated
-        public void getData(int pageCount, int pageIndex);
-    }
-
-    public static void main(String[] args) {
-        IAPI iApi = (IAPI) Proxy.newProxyInstance(IAPI.class.getClassLoader(), new Class<?>[]{IAPI.class}, new InvocationHandler() {
-
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                Integer pageCount = (Integer) args[0];
-                Integer pageIndex = (Integer) args[1];
-                System.out.println("参数: " + pageCount + "," + pageIndex);
-                System.out.println("方法名: " + method.getName());
-
-                Annotation[] annotations = method.getAnnotations();
-                System.out.println("注解：" + annotations[0].toString());
-
-                return null;
-            }
-        });
-        iApi.getData(5, 8);
     }
 
 

@@ -2,8 +2,9 @@ package com.rwz.app;
 
 import android.util.Log;
 
-import com.rwz.app.hook.JSHookManager;
+import com.rwz.app.hook.TestHookManager;
 import com.rwz.hook.core.AppConfig;
+import com.rwz.hook.core.Constance;
 import com.rwz.hook.core.HookHelp;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -19,8 +20,9 @@ public class MainHook implements IXposedHookLoadPackage {
     private static final String TAG = "MainHook";
 
     public MainHook() {
-        HookHelp.register(new AppConfig("js", "com.jianshu.haruki",
-                "com.tencent.tinker.loader.app.TinkerApplication"), JSHookManager.class);
+        //测试，不区分应用
+        HookHelp.register(new AppConfig("", Constance.ALL_PACKAGE_NAME,
+                ""), TestHookManager.class);
     }
 
     @Override

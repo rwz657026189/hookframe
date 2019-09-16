@@ -2,6 +2,8 @@ package com.rwz.hook.utils;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
@@ -103,6 +105,54 @@ public class Utils {
             return originJson;
         String kv = "\"" + key + "\":" + value + ",";
         return "{" + kv + originJson.substring(1);
+    }
+
+    public static int getVersionCode(Context context) {
+        try {
+            PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return info.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
+
+    public static Boolean putInt(Context context, String key, int value) {
+        if(context == null) return false;
+        SharedPreferences pre    = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pre.edit();
+        editor.putInt(key, value);
+        return editor.commit();
+    }
+
+    public static int getInt(Context context, String key ,int DEF_VALUE) {
+        if(context == null) return DEF_VALUE;
+        SharedPreferences pre = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+        return pre.getInt(key, DEF_VALUE);
+    }
+
+    /**
+     * 版本号变化后重启手机
+     */
+    public static void checkVersionCode(Context context) {
+        int currVersionCode = Utils.getVersionCode(context);
+        int saveVersionCode = Utils.getInt(context, "VERSION_CODE", 1);
+        LogUtil.d("MainActivity" + " checkVersionCode：" + currVersionCode, saveVersionCode);
+        if (currVersionCode > saveVersionCode) {
+            Utils.putInt(context, "VERSION_CODE", currVersionCode);
+            reboot();
+        }
+    }
+
+    //重启手机
+    public static void reboot() {
+        Process proc = null; //关机
+        try {
+            proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot "});
+            proc.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

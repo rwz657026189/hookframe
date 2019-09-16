@@ -37,6 +37,10 @@ public class HookHelp {
             AppConfig appConfig = HookHelp.getAppConfig(lpparam.packageName);
             if(appConfig != null)
                 handleLoadPackage(appConfig, lpparam);
+            //针对需要hook所有应用的情况
+            AppConfig config = HookHelp.getAppConfig(Constance.ALL_PACKAGE_NAME);
+            if(config != null)
+                handleLoadPackage(config, lpparam);
         }
     }
 

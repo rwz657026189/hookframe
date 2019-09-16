@@ -12,8 +12,10 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.rwz.hook.core.AppConfig;
+import com.rwz.hook.core.BridgeService;
 import com.rwz.hook.core.Constance;
 import com.rwz.hook.utils.LogUtil;
 
@@ -28,10 +30,12 @@ import de.robv.android.xposed.XposedHelpers;
  * date： 2019/9/4 16:43
  * author： rwz
  * description：hook管理基类，主要建立了与客户端的通信
+ * 注意：
+ * 1.发送消息/接收消息的前提是必须配置application且连接到服务
  **/
 public abstract class BaseHookManager implements IHookManager, ServiceConnection{
 
-    private final static String SERVICE_CLASS_NAME = "com.rwz.hook.core.BridgeService";
+    private final static String SERVICE_CLASS_NAME = BridgeService.class.getName();
     protected Context mContext;
     protected ClassLoader mClassLoader;
     protected AppConfig mAppConfig;
@@ -54,6 +58,14 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
 
     protected void hookApp() {
         String appContext = mAppConfig.getApplicationClassName();
+        if (TextUtils.isEmpty(appContext)) {
+            try {
+                onHookSuccess();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+            return;
+        }
         LogUtil.d("BaseHookManager" + " hookApp：" + appContext);
         XposedHelpers.findAndHookMethod(appContext, mClassLoader, "attachBaseContext", Context.class,
                 new XC_MethodHook() {
@@ -61,6 +73,8 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
                         mContext = (Context) param.args[0];
+                        if(mContext != null)
+                            mClassLoader = mContext.getClassLoader();
                         LogUtil.d("BaseHookManager" + " afterHookedMethod：success mContext = " + mContext);
                         connService(mContext);
                         onHookSuccess();

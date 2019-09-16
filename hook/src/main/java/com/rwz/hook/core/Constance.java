@@ -2,8 +2,14 @@ package com.rwz.hook.core;
 
 public interface Constance {
 
-    //当前应用包名
+    //当前应用包名, 请根据当前app修改
     String packageName = "com.rwz.app";
+    //所有包名
+    String ALL_PACKAGE_NAME = "ALL_PACKAGE_NAME";
+
+    //360
+    String APPLICATION_CLASS_360 = "com.stub.StubApp";
+
 
     boolean isDebug = true;
     boolean showLog = true;

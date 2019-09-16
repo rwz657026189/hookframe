@@ -4,11 +4,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatTextView;
 
-import com.rwz.app.MsgCode;
 import com.rwz.app.R;
 import com.rwz.hook.core.app.ClientManager;
 import com.rwz.hook.core.app.ReceivedListener;
-import com.rwz.hook.utils.LogUtil;
+import com.rwz.hook.utils.Utils;
 
 public class MainActivity extends AppCompatActivity implements ReceivedListener {
 
@@ -22,10 +21,13 @@ public class MainActivity extends AppCompatActivity implements ReceivedListener 
         mManager = new ClientManager(this);
         mManager.connService(this);
         findViewById(R.id.text).setOnClickListener(v -> {
-            mManager.sendMessage(MsgCode.GET_ACTIVITY_INFO, null);
         });
         mMContextView = findViewById(R.id.content);
+        //每次构建后，重启手机
+        Utils.checkVersionCode(this);
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -35,15 +37,6 @@ public class MainActivity extends AppCompatActivity implements ReceivedListener 
 
     @Override
     public void onReceivedEvent(int code, String packageName, Bundle data) {
-        if (code == MsgCode.RETURN_ACTIVITY_INFO) {
-            String text = data.getString(MsgCode.KEY_ACTIVITY_INFO);
-            LogUtil.d("MainActivity" + " onReceivedEvent：" + text);
-            mMContextView.setText(text);
-        }
-    }
-
-    public static void main(String[] args) {
-
     }
 
 }
