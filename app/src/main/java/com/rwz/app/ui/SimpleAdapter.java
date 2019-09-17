@@ -1,15 +1,13 @@
 package com.rwz.app.ui;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.AppCompatButton;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * date： 2019/9/16 17:48
@@ -51,13 +49,9 @@ public class SimpleAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         Pair<String, View.OnClickListener> entity = mData.get(position);
         if (convertView == null) {
-            convertView = new AppCompatTextView(mContext);
-            int padding = 12;
-            convertView.setPadding(padding, padding, padding, padding);
-            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            convertView.setLayoutParams(params);
+            convertView = new AppCompatButton(mContext);
         }
-        AppCompatTextView view = (AppCompatTextView) convertView;
+        AppCompatButton view = (AppCompatButton) convertView;
         view.setText(entity.first);
         view.setOnClickListener(entity.second);
         return view;

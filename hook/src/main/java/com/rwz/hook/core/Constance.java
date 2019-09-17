@@ -11,10 +11,12 @@ public interface Constance {
     String SERVER_URL = "ws://192.168.0.183:" + SERVER_PORT;
     //是否debug
     boolean isDebug = true;
-    //是否显示日志
+    //UI页面是否显示日志(耗性能，建议仅供测试用)
     boolean showLog = true;
     //最大支持线程数
     int MAX_THREAD = 64;
+    //日志最大缓存字符
+    int MAX_LOG_TEMP = 10000;
     //*******************************************************************//
 
 
@@ -37,9 +39,14 @@ public interface Constance {
     int LOG_ERROR = 400;
 
     //*******************  消息键值  *******************//
-    String KEY_MSG = "msg";
+    //日志
+    String KEY_LOG = "KEY_LOG";
+    //目标app包名
     String KEY_TARGET_PACKAGE_NAME = "KEY_TARGET_PACKAGE_NAME";
-    String KEY_FROM_TARGET = "FROM_TARGET";
+    //目标app
+    String KEY_TARGET_APP_NAME = "KEY_TARGET_APP_NAME";
+    //消息是否来自目标app
+    String KEY_FROM_TARGET = "KEY_FROM_TARGET";
     //连接服务器
     String KEY_CONN_SERVER = "KEY_CONN_SERVER";
 

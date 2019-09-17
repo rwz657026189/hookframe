@@ -1,6 +1,8 @@
 package com.rwz.hook.utils;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -9,6 +11,8 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+
+import com.rwz.hook.R;
 
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -153,6 +157,14 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 复制文字到剪切板
+     */
+    public static void copyText(Context context, CharSequence text) {
+        ClipboardManager cmb = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        cmb.setPrimaryClip(ClipData.newPlainText("复制", text));
     }
 
 }

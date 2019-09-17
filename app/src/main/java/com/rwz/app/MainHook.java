@@ -2,9 +2,8 @@ package com.rwz.app;
 
 import android.util.Log;
 
-import com.rwz.app.hook.TestHookManager;
+import com.rwz.hook.core.hook.TestHookManager;
 import com.rwz.hook.core.AppConfig;
-import com.rwz.hook.core.Constance;
 import com.rwz.hook.core.HookHelp;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -22,6 +21,8 @@ public class MainHook implements IXposedHookLoadPackage {
     public MainHook() {
         //测试，不区分应用
         HookHelp.register(new AppConfig(), TestHookManager.class);
+        //只测试某个应用
+//        HookHelp.register(new AppConfig("简书", "com.jianshu.haruki"), TestHookManager.class);
     }
 
     @Override

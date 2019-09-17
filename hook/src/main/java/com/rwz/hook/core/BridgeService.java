@@ -25,11 +25,11 @@ public class BridgeService extends Service{
 
     private static final String TAG = "BridgeService";
 
-    private static final int MAX_LOG_TEMP = 10000;
     private static MessengerHandler mHandle = new MessengerHandler();
     private Messenger mMsg = new Messenger(mHandle);
     //消息拦截器，只允许设置一个
     private static MsgInterceptor sMsgInterceptor;
+    private static String VERSION_CODE;
 
     @Nullable
     @Override
@@ -44,6 +44,8 @@ public class BridgeService extends Service{
     public void onCreate() {
         super.onCreate();
         ContextHelp.setContext(this);
+        VERSION_CODE = "当前版本v" + Utils.getVersionCode(this) + "\n";
+        mHandle.logData.append(VERSION_CODE);
     }
 
     /**
@@ -95,17 +97,17 @@ public class BridgeService extends Service{
                 switch (msg.what) {
                     case Constance.CODE_CLIENT_JOIN: //客户端注册
                         mClientMes = msg.replyTo;
-                        outputLog("客户端注册成功");
+                        outputLog("客户端注册成功", true);
                         break;
                     case Constance.CODE_TARGET_JOIN: //目标注册
                         putTargetMessenger(msg);
-                        outputLog("目标注册成功");
+                        outputLog(getPrefix(msg) + "注册成功", true);
                         break;
                     case Constance.CODE_CONN_SERVER://连接到服务器
                         WebSocketManager.getInstance().startConn();
                         break;
                     case Constance.CODE_LOG: //输出日志
-                        outputLog(msg.getData().getString(Constance.KEY_MSG));
+                        outputLog(getPrefix(msg) + msg.getData().getString(Constance.KEY_LOG),false);
                         break;
                     default:
                         sendMsg(msg);
@@ -116,18 +118,25 @@ public class BridgeService extends Service{
             }
         }
 
-        private void outputLog(String msg) throws RemoteException{
-            if(!Constance.showLog)
+        private String getPrefix(Message msg) {
+            String appName = msg.getData().getString(Constance.KEY_TARGET_APP_NAME);
+            return (appName == null ? "目标app" : appName) + "：";
+        }
+
+        private void outputLog(String msg, boolean isForce) throws RemoteException{
+            if(!Constance.showLog && !isForce)
                 return;
             LogUtil.d("MessengerHandler" + " outputLog：" + msg);
-            logData.append(Utils.getTime()).append(msg).append("\n");
-            if (logData.length() > MAX_LOG_TEMP) {
-                logData.delete(0, logData.length() - MAX_LOG_TEMP);
+            logData.append("▪ ").append(Utils.getTime()).append(msg).append("\n");
+            int length = VERSION_CODE.length();
+            if (logData.length() > Constance.MAX_LOG_TEMP + length) {
+                logData.delete(length, logData.length() - Constance.MAX_LOG_TEMP);
             }
             if (mClientMes != null) {
                 Message obtain = Message.obtain(null, Constance.CODE_LOG);
                 Bundle bundle = new Bundle();
-                bundle.putString(Constance.KEY_MSG, logData.toString());
+                String text = logData.toString();
+                bundle.putString(Constance.KEY_LOG, text);
                 obtain.setData(bundle);
                 mClientMes.send(obtain);
             } else {
@@ -143,13 +152,13 @@ public class BridgeService extends Service{
                 if (mClientMes != null)
                     mClientMes.send(obtain);
                 else
-                    LogUtil.d("MessengerHandler" + " sendMsg：客户端未注册");
+                    outputLog("客户端未注册", true);
             } else {
                 Messenger targetMessenger = getTargetMessenger(msg);
                 if (targetMessenger != null)
                     targetMessenger.send(obtain);
                 else
-                    LogUtil.d("MessengerHandler" + " sendMsg：目标app未注册");
+                    outputLog(getPrefix(msg) + "未注册", true);
             }
         }
     }

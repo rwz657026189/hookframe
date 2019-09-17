@@ -80,6 +80,7 @@ public class WebSocketManager {
             if (!mWebClient.isClosed())
                 mWebClient.close();
             mWebClient.setConnResultEvent(null);
+            mWebClient.setResponseListener(null);
         }
         mWebClient = null;
         LogUtil.d(TAG, "已关闭连接");

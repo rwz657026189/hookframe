@@ -11,8 +11,8 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 
 import com.rwz.hook.core.AppConfig;
 import com.rwz.hook.core.BridgeService;
@@ -42,7 +42,7 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
     private Messenger mMessenger;
 
     @Override
-    public void setAppConfig(AppConfig appConfig) {
+    public void setAppConfig(@NonNull AppConfig appConfig) {
         mAppConfig = appConfig;
     }
 
@@ -51,24 +51,14 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         boolean isHook = this.mClassLoader == null && classLoader != null;
         this.mClassLoader = classLoader;
         LogUtil.d("BaseHookManager" + " init：" + "isHook = " + isHook + ", classLoader = " + classLoader);
-        String appContext = mAppConfig.getApplicationClassName();
-        if (TextUtils.isEmpty(appContext)) {
-            try {
-                LogUtil.d("BaseHookManager" + " init：appContext is null");
-                onHookSuccess();
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-            return;
-        } else if (isHook) {
+        if (isHook) {
             hookApp();
         }
     }
 
     protected void hookApp() {
-        String appContext = mAppConfig.getApplicationClassName();
-        LogUtil.d("BaseHookManager" + " hookApp：" + appContext);
-        XposedHelpers.findAndHookMethod(appContext, mClassLoader, "attachBaseContext", Context.class,
+        String appContext = "android.app.Application";
+        XposedHelpers.findAndHookMethod(appContext, mClassLoader, "attach", Context.class,
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -105,6 +95,8 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         if(bundle == null)
             bundle = new Bundle();
         bundle.putString(Constance.KEY_TARGET_PACKAGE_NAME, mAppConfig.getPackageName());
+        if(Constance.showLog)
+            bundle.putString(Constance.KEY_TARGET_APP_NAME, mAppConfig.getAppName());
         bundle.putBoolean(Constance.KEY_FROM_TARGET, true);
         message.setData(bundle);
         LogUtil.d("BaseHookManager" + " sendMessage：" + message.getData());
@@ -112,6 +104,15 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
             mMessenger.send(message);
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+    }
+
+    //ui展示日志
+    protected void showLog(String content) {
+        if (Constance.showLog) {
+            Bundle data = new Bundle();
+            data.putString(Constance.KEY_LOG, content);
+            sendMessage(Constance.CODE_LOG, data);
         }
     }
 
@@ -129,9 +130,9 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         }
     }));
 
-    final Executor mExecutor =  Executors.newFixedThreadPool(Constance.MAX_THREAD);
+    private final Executor mExecutor =  Executors.newFixedThreadPool(Constance.MAX_THREAD);
 
-    class CommRunnable implements Runnable{
+    private class CommRunnable implements Runnable{
         private int code;
         private Bundle bundle;
 
@@ -142,7 +143,7 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
 
         @Override
         public void run() {
-            LogUtil.d("CommRunnable" + " run：" + "code = " + code, "bundle = " + bundle);
+            LogUtil.d("BaseHookManager" + " onReceivedEvent：" + "code = " + code, "bundle = " + bundle);
             try {
                 onReceivedEvent(code, bundle);
             } catch (Throwable e) {

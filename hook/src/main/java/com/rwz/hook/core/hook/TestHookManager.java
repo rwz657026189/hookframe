@@ -1,4 +1,4 @@
-package com.rwz.app.hook;
+package com.rwz.hook.core.hook;
 
 import android.app.Activity;
 import android.content.Context;
@@ -53,6 +53,11 @@ public class TestHookManager extends BaseHookManager {
                 LogUtil.d("TestHookManager" + " onResume：activity = " + activityName);
                 LogUtil.d("TestHookManager" + " onResume：turnArgs = " + turnArgs);
                 LogUtil.d("TestHookManager" + " onResume：vars = " + vars);
+                showLog("application = " + app + "\n"
+                        + "packageName = " + packageName + "\n"
+                        + "activity = " + activityName + "\n"
+                        + "跳转参数 = " + turnArgs + "\n"
+                        + "成员变量 = " + vars);
             }
         });
     }
