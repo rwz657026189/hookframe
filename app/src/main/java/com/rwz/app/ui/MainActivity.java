@@ -2,19 +2,18 @@ package com.rwz.app.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import com.rwz.app.R;
 import com.rwz.hook.core.Constance;
 import com.rwz.hook.core.app.ClientManager;
 import com.rwz.hook.core.app.ReceivedListener;
 import com.rwz.hook.core.websocket.WebSocketManager;
+import com.rwz.hook.utils.LogUtil;
 import com.rwz.hook.utils.Utils;
 
 import java.util.ArrayList;
@@ -68,6 +67,16 @@ public class MainActivity extends AppCompatActivity implements ReceivedListener{
         if (code == Constance.CODE_LOG) {
             mContentView.setText(data.getString(Constance.KEY_LOG));
         }
+    }
+
+    private String print(String text) {
+        LogUtil.d("MainActivity" + " print：" + text);
+        return text;
+    }
+
+    private String show(String text) {
+        LogUtil.d("MainActivity" + " print：" + text);
+        return text;
     }
 
 }

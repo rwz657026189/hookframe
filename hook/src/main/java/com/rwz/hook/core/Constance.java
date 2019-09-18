@@ -11,7 +11,7 @@ public interface Constance {
     String SERVER_URL = "ws://192.168.0.183:" + SERVER_PORT;
     //是否debug
     boolean isDebug = true;
-    //UI页面是否显示日志(耗性能，建议仅供测试用)
+    //UI页面是否显示日志、hook方法打印关键日志(耗性能，建议仅供测试用)
     boolean showLog = true;
     //最大支持线程数
     int MAX_THREAD = 64;

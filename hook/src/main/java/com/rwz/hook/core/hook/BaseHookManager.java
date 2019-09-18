@@ -170,11 +170,4 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
         return XposedHelpers.newInstance(mClassLoader.loadClass(className), args);
     }
 
-    public void setFiled(Object obj, String filedName, Object value) throws Exception{
-        Class<?> cls = obj.getClass();
-        Field field = cls.getDeclaredField(filedName);
-        field.setAccessible(true);
-        field.set(obj, value);
-    }
-
 }

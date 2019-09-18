@@ -7,6 +7,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedHelpers;
+
 /**
  * 反射工具类
  */
@@ -23,18 +26,36 @@ public class ReflectUtil {
      * 获取父类对象的属性值
      * @param obj null表示静态变量
      */
-    public static Object getDeclaredField(Class cl, @Nullable Object obj, String fieldName) {
-        if (cl == null || TextUtils.isEmpty(fieldName)) {
+    public static Object getDeclaredField(Class cls, @Nullable Object obj, String fieldName) {
+        if (cls == null || TextUtils.isEmpty(fieldName)) {
             return null;
         }
         try {
-            Field field = cl.getDeclaredField(fieldName);
+            Field field = cls.getDeclaredField(fieldName);
             field.setAccessible(true);
             return field.get(obj);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 设置某个对象属性值
+     */
+    public void setFiled(Object obj, String filedName, Object value) {
+        if(obj != null)
+            setFiled(obj.getClass(), obj, filedName, value);
+    }
+
+    public void setFiled(Class cls, @Nullable Object obj, String filedName, Object value){
+        try {
+            Field field = cls.getDeclaredField(filedName);
+            field.setAccessible(true);
+            field.set(obj, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -145,6 +166,27 @@ public class ReflectUtil {
         } else {
             LogUtil.d(TAG, "params = " + Arrays.toString((Object[]) params));
         }
+    }
+
+    public static String getHookParamDetail(XC_MethodHook.MethodHookParam param) {
+        if(param == null)
+            return "";
+        Object thisObject = param.thisObject;
+        Object result = param.getResult();
+        Object[] args = param.args;
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n").append("--------------------------------------------------------------------------------------------------------------------").append("\n");
+        if(thisObject != null)
+            sb.append("thisObject = ").append(thisObject).append("\n");
+        if(result != null)
+            sb.append("result = ").append(result).append("\n");
+        if (args != null && args.length > 0) {
+            for (int i = 0; i < args.length; i++) {
+                String parse = parse(args[i]);
+                sb.append("arg").append(i).append(" = ").append(parse).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
 

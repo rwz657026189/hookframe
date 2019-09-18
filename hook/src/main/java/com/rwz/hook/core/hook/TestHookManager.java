@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
-import com.rwz.hook.core.hook.BaseHookManager;
 import com.rwz.hook.utils.LogUtil;
 import com.rwz.hook.utils.ReflectUtil;
 
