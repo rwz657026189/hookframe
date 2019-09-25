@@ -50,4 +50,7 @@ public interface Constance {
     //连接服务器
     String KEY_CONN_SERVER = "KEY_CONN_SERVER";
 
+    //读写权限code
+    int REQUEST_EXTERNAL_STORAGE = 1001;
+
 }

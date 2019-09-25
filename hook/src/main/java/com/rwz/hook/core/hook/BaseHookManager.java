@@ -36,6 +36,7 @@ import de.robv.android.xposed.XposedHelpers;
 public abstract class BaseHookManager implements IHookManager, ServiceConnection{
 
     private final static String SERVICE_CLASS_NAME = BridgeService.class.getName();
+    private final String TAG = getClass().getSimpleName();
     protected Context mContext;
     protected ClassLoader mClassLoader;
     protected AppConfig mAppConfig;
@@ -50,7 +51,7 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
     public void init(ClassLoader classLoader) {
         boolean isHook = this.mClassLoader == null && classLoader != null;
         this.mClassLoader = classLoader;
-        LogUtil.d("BaseHookManager" + " init：" + "isHook = " + isHook + ", classLoader = " + classLoader);
+        LogUtil.d(TAG + " init：" + "isHook = " + isHook + ", classLoader = " + classLoader);
         if (isHook) {
             hookApp();
         }
@@ -66,7 +67,6 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
                         mContext = (Context) param.args[0];
                         if(mContext != null)
                             mClassLoader = mContext.getClassLoader();
-                        LogUtil.d("BaseHookManager" + " afterHookedMethod：success mContext = " + mContext);
                         connService(mContext);
                         onHookSuccess();
                     }
@@ -90,6 +90,8 @@ public abstract class BaseHookManager implements IHookManager, ServiceConnection
 
     //消息：目标app -> 客户端
     protected void sendMessage(int code, @Nullable Bundle bundle) {
+        if(mMessenger == null)
+            return;
         Message message = Message.obtain(null, code);
         message.replyTo = reply;
         if(bundle == null)

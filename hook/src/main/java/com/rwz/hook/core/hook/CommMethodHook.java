@@ -13,10 +13,19 @@ import de.robv.android.xposed.XC_MethodHook;
  **/
 public abstract class CommMethodHook extends XC_MethodHook {
 
+    private boolean showLog = Constance.showLog;
+
+    public CommMethodHook() {
+    }
+
+    public CommMethodHook(boolean showLog) {
+        this.showLog = showLog && Constance.showLog;
+    }
+
     @Override
     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
         super.afterHookedMethod(param);
-        if (Constance.showLog) {
+        if (showLog) {
             String name = param.method.getName();
             Class<?> cls = param.method.getDeclaringClass();
             //打印相关参数

@@ -61,24 +61,25 @@ public class ReflectUtil {
     /**
      * 调用某个方法
      */
-    public static void invoke(Object target, String methodName, Object... args) {
+    public static Object invoke(Object target, String methodName, Object... args) {
         if(target == null)
-            return;
-        invoke(target.getClass(), target, methodName, args);
+            return null;
+        return invoke(target.getClass(), target, methodName, args);
     }
 
     /**
      * 调用父类某个方法
-     * @param obj : null表示静态方法
+     * @param obj : (Object) null 表示静态方法
      */
-    public static void invoke(Class cls, @Nullable Object obj, String methodName, Object... args) {
+    public static Object invoke(Class cls, @Nullable Object obj, String methodName, Object... args) {
         try {
             Method method = cls.getDeclaredMethod(methodName, object2Class(args));
             method.setAccessible(true);
-            method.invoke(obj, args);
+            return method.invoke(obj, args);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     private static Class[] object2Class(Object... args) {
@@ -189,6 +190,28 @@ public class ReflectUtil {
         return sb.toString();
     }
 
-
+    /**
+     * 获取类定义的方法和属性
+     */
+    public static String toString(Class cls) {
+        if(cls == null)
+            return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append("------------------------------------------ fields ------------------------------------------").append("\n");
+        Field[] fields = cls.getDeclaredFields();
+        if (fields != null && fields.length > 0) {
+            for (Field field : fields) {
+                sb.append(field).append("\n");
+            }
+        }
+        sb.append("------------------------------------------ methods ------------------------------------------").append("\n");
+        Method[] methods = cls.getDeclaredMethods();
+        if (methods != null && methods.length > 0) {
+            for (Method method : methods) {
+                sb.append(method).append("\n");
+            }
+        }
+        return sb.toString();
+    }
 
 }
